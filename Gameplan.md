@@ -7,14 +7,14 @@
 
 ## Flow of the Chip8
 
-### Initialise all the values present in the emulator.\
+### Initialise all the values present in the emulator
 
 1. create the intialise memory.
-1. create and initialise the registers \
-1. set the Index register to zero\
-1. set the PC \
-1. clear the screen \
-1. clean the stack\
+1. create and initialise the registers
+1. set the Index register to zero
+1. set the PC
+1. clear the screen
+1. clean the stack
 
 ### Load the file into the memory
 
@@ -51,3 +51,4 @@ For each of the below we can have a class to make instance of each of them.
 ### Implementation Details
 
 use chrono to check the cycle time once the time is done we can update it(Our PC speed will be quite high)
+Instruction speed of 700 per second is considered good.

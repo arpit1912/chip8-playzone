@@ -19,7 +19,7 @@ public:
     uint8_t delay_timer; // clock speed of 60Hz
     uint8_t sound_timer; // clock speed of 60Hz
 
-    int display[64][32]; //Boolean can also work here 0 and 1 state
+    int display[32][64]; //Boolean can also work here 0 and 1 state
 
     uint16_t font[80]={
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -96,6 +96,67 @@ void chip8::cycle(){
 
 void chip8::DecodeAndExecute(uint16_t opcode){
     
+    uint16_t nibble[6]{}; // 6 type of nibbles are there in the opcode
+    // decoding the opcode with masking 
+    nibble[0] = (opcode & 0xf000) >> 12; // first byte
+    nibble[1] = (opcode & 0x0f00) >> 8; // second byte, X
+    nibble[2] = (opcode & 0x00f0) >> 4; // third byte, Y
+    nibble[3] = opcode & 0x000f; // fourth byte, N
+    nibble[4] = opcode & 0x00ff; // NN
+    nibble[5] = opcode & 0x0fff; // NNN
+    
+    // execution of the opcode
+    switch (nibble[0])
+    {
+    case 0x0:
+        memset(display,0,sizeof(display));
+        break;
+    case 0x1:
+        PC = nibble[5];
+        break;
+    case 0x6:
+        reg[nibble[1]] = nibble[4];
+        break;
+    case 0x7:
+        reg[nibble[1]] +=nibble[4];
+        break;
+    case 0xa:
+        index_register = nibble[5];
+        break;
+    case 0xd: //display dxyn
+        uint8_t x_pos = reg[nibble[1]];
+        uint8_t y_pos = reg[nibble[2]];
+        uint8_t height = nibble[3];
+        reg[0xf] = 0;
+
+        for(int row = 0; row < height; row++){
+            
+            uint8_t sprite_byte = memory[index_register + row];
+
+            for(int col = 0; col< 8;col++){
+                
+                uint8_t spritepixel = (sprite_byte >> (7-col)) & 1;
+                // for avoiding the wrap of sprite
+                if((x_pos + col > 63) || (y_pos + row) > 31)
+                    break;
+                
+                int* screenpixel = &display[y_pos + row][x_pos + col];
+
+                if(spritepixel){
+                    if(*screenpixel){
+                        reg[0xf] = 1;
+                    }
+
+                    *screenpixel = (*screenpixel)^ spritepixel;
+                }
+            }
+        }
+        break;
+    default:
+        cout<<" there is no such opcode implemented right now"<<endl;
+        break;
+    }
+
 }
 
 
