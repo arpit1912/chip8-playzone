@@ -39,7 +39,7 @@ public:
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
-
+    // 1 1 1 1 0 0 0 0
     //Funtions of the processor are here
     chip8(/* args */);
     bool ReadFile(const string &filename);
@@ -95,7 +95,7 @@ void chip8::cycle(){
 }
 
 void chip8::DecodeAndExecute(uint16_t opcode){
-    
+    /// Dxyn
     uint16_t nibble[6]{}; // 6 type of nibbles are there in the opcode
     // decoding the opcode with masking 
     nibble[0] = (opcode & 0xf000) >> 12; // first byte
