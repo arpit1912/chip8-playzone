@@ -1,7 +1,14 @@
 #include<bits/stdc++.h>
+#include <SDL2/SDL.h>
+
 using namespace std;
 
-const uint16_t START_ADDRESS = 0x200;
+#define scale 10
+const int START_ADDRESS = 0x200;
+const int window_width = 64;
+const int window_height = 32;
+const int fps = 60;
+
 
 class chip8
 {
@@ -19,7 +26,7 @@ public:
     uint8_t delay_timer; // clock speed of 60Hz
     uint8_t sound_timer; // clock speed of 60Hz
 
-    int display[32][64]; //Boolean can also work here 0 and 1 state
+    uint32_t display[window_width*window_height]; //Boolean can also work here 0 and 1 state
 
     uint16_t font[80]={
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -39,9 +46,9 @@ public:
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
-    // 1 1 1 1 0 0 0 0
+
     //Funtions of the processor are here
-    chip8(/* args */);
+    chip8();
     bool ReadFile(const string &filename);
     void cycle();
     void DecodeAndExecute(uint16_t opcode);
@@ -58,6 +65,8 @@ chip8::chip8()
     }
     
     PC = START_ADDRESS;
+    index_register = 0;
+
 
 }
 
@@ -124,8 +133,9 @@ void chip8::DecodeAndExecute(uint16_t opcode){
         index_register = nibble[5];
         break;
     case 0xd: //display dxyn
-        uint8_t x_pos = reg[nibble[1]];
-        uint8_t y_pos = reg[nibble[2]];
+    {
+        uint8_t x_pos = reg[nibble[1]] % window_width;
+        uint8_t y_pos = reg[nibble[2]] % window_height;
         uint8_t height = nibble[3];
         reg[0xf] = 0;
 
@@ -140,18 +150,19 @@ void chip8::DecodeAndExecute(uint16_t opcode){
                 if((x_pos + col > 63) || (y_pos + row) > 31)
                     break;
                 
-                int* screenpixel = &display[y_pos + row][x_pos + col];
+                uint32_t* screenpixel = &display[(y_pos + row)*window_width + (x_pos + col)];
 
                 if(spritepixel){
-                    if(*screenpixel){
+                    if(*screenpixel == 0xFFFFFFFF){
                         reg[0xf] = 1;
-                    }
+                    }   
 
-                    *screenpixel = (*screenpixel)^ spritepixel;
+                    *screenpixel = (*screenpixel) ^ 0xFFFFFFFF;
                 }
             }
         }
         break;
+    }
     default:
         cout<<" there is no such opcode implemented right now"<<endl;
         break;
@@ -159,12 +170,64 @@ void chip8::DecodeAndExecute(uint16_t opcode){
 
 }
 
-
+void maintainclockspeed(uint32_t startTime)
+{
+    uint32_t currentTime = SDL_GetTicks();
+    if( (1000/fps) > (currentTime - startTime)){
+            SDL_Delay((1000/fps) - (currentTime-startTime));
+        }
+}
 
 int main(int argc, char* argv[]){
 
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+    SDL_Texture* texture = NULL;
+    SDL_Event event;
+    bool running = true;
+
+    window = SDL_CreateWindow(" Chip-8 emulator",
+                                SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED,
+                                scale*window_width,
+                                scale*window_height,
+                                SDL_WINDOW_RESIZABLE);
+
+    if(window == NULL){
+        cout<<" Window can't be created some error occured "<<SDL_GetError()<<endl;
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    texture = SDL_CreateTexture(renderer, 
+                                SDL_PIXELFORMAT_RGBA8888,
+                                SDL_TEXTUREACCESS_STREAMING,
+                                window_width,
+                                window_height);
     chip8 CHIP8;
     CHIP8.ReadFile(argv[1]);
+    
+    while(running){
 
+        uint32_t startTime = SDL_GetTicks();
+        CHIP8.cycle();
+        while(SDL_PollEvent(&event)){
+            
+            switch (event.type)
+            {
+            case SDL_QUIT:
+                    running = false;
+                break;
+            }
+        }
+
+        SDL_UpdateTexture(texture, nullptr, (void const*) CHIP8.display,sizeof(uint32_t) * window_width);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(renderer);
+        
+        maintainclockspeed(startTime);
+        
+    }
+    
 
 }
