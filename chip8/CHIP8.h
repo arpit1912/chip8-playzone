@@ -1,19 +1,11 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-
 #include<fstream>
 #include<iostream>
-#include<cstring>
 #include<stack>
 
-
-#define scale 10
-const int START_ADDRESS = 0x200;
-const int window_width = 64;
-const int window_height = 32;
-const int fps = 60;
-
+#include "FLAG.h"
 
 class chip8
 {
@@ -29,7 +21,7 @@ private:
 public:
     
     uint8_t memory[4096];
-    uint32_t display[window_width*window_height];
+    uint32_t display[WINDOW_WIDTH*WINDOW_HEIGHT];
 
     uint16_t font[80]={
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -132,8 +124,12 @@ void chip8::DecodeAndExecute(uint16_t opcode){
     // execution of the opcode
     switch (nibble[0])
     {
-    case 0x0:
-        memset(display,0,sizeof(display));
+    case 0x0: // clearing the screen 
+        {
+            for(int i=0;i< WINDOW_WIDTH*WINDOW_HEIGHT ; i++){
+                display[i] = 0;
+            }
+        }
         break;
     case 0x1:
         PC = nibble[5];
@@ -149,8 +145,8 @@ void chip8::DecodeAndExecute(uint16_t opcode){
         break;
     case 0xd: //display dxyn
     {
-        uint8_t x_pos = reg[nibble[1]] % window_width;
-        uint8_t y_pos = reg[nibble[2]] % window_height;
+        uint8_t x_pos = reg[nibble[1]] % WINDOW_WIDTH;
+        uint8_t y_pos = reg[nibble[2]] % WINDOW_HEIGHT;
         uint8_t height = nibble[3];
         reg[0xf] = 0;
 
@@ -165,7 +161,7 @@ void chip8::DecodeAndExecute(uint16_t opcode){
                 if((x_pos + col > 63) || (y_pos + row) > 31)
                     break;
                 
-                uint32_t* screenpixel = &display[(y_pos + row)*window_width + (x_pos + col)];
+                uint32_t* screenpixel = &display[(y_pos + row)*WINDOW_WIDTH + (x_pos + col)];
 
                 if(spritepixel){
                     if(*screenpixel == 0xFFFFFFFF){
@@ -178,6 +174,7 @@ void chip8::DecodeAndExecute(uint16_t opcode){
         }
         break;
     }
+    // THere are many OPCODEs which are still left to be implemented!
     default:
         std::cout<<" there is no such opcode implemented right now"<<std::endl;
         break;
