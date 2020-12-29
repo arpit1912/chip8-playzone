@@ -5,5 +5,5 @@ COMPILER_FLAGS = -w
 LINKER_FLAGS = -lSDL2
 OBJ_NAME = sdl_testing.out
 all : $(OBJS)
-	$(CC) $(OBJS) -w -lSDL2 -o sdl_testing.out
+	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
 
