@@ -5,25 +5,25 @@
 #include<iostream>
 #include<stack>
 
-#include "FLAG.h"
+#include "FLAG.h" // all the defines are done in this file
 
 class chip8
 {
 private:
-    uint8_t reg[16];
-    std::stack<uint16_t> stack_memory;
-    uint16_t PC;
-    uint16_t index_register;
-    uint16_t current_opcode;
+    uint8_t reg[16]; // The 19 register of the chip-8
+    std::stack<uint16_t> stack_memory; // The stack memory of the chip-8
+    uint16_t PC; // The PC counter
+    uint16_t index_register; // The index register 
+    uint16_t current_opcode; // Stores the current opcode the emulator is working on
 
-    uint8_t delay_timer; // clock speed of 60Hz
-    uint8_t sound_timer; // clock speed of 60Hz
+    uint8_t delay_timer; // clock speed of 60Hz --> not yet used
+    uint8_t sound_timer; // clock speed of 60Hz --> not yet used
 public:
     
-    uint8_t memory[4096];
-    uint32_t display[WINDOW_WIDTH*WINDOW_HEIGHT];
+    uint8_t memory[4096]; // The RAM of the chip-8
+    uint32_t display[WINDOW_WIDTH*WINDOW_HEIGHT]; // THe display screen of the chip-8
 
-    uint16_t font[80]={
+    uint16_t font[80]={ // The Sprites that are stored in the CHIP-8
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -43,6 +43,9 @@ public:
     };
 
     chip8();
+    /* The ReadFile reads the program that we give it as an input and then it
+    * write it on the Memory for the execution
+    */
     bool ReadFile(const char* filename);
     void Cycle();
     void Fetch();
@@ -94,24 +97,25 @@ bool chip8:: ReadFile(const char* filename){
 
 
 // running a cycle for the instruction opcode
+// It has two Sub Parts Fetch() and DecodeAndExecute()
 void chip8::Cycle(){  
     
     Fetch();
-    PC +=2;
-    DecodeAndExecute(current_opcode);
+    PC +=2; // after fetching increment the PC
+    DecodeAndExecute(current_opcode); // Decode the Fetched Instr
 
 }
 
 // fetching the instr from the two continous blocks
 void chip8::Fetch(){
     current_opcode = memory[PC];
-    current_opcode <<= 8;
+    current_opcode <<= 8; // shifting it 8 bits to make the space for the next memory block
     current_opcode = current_opcode | memory[PC+1];
 }
 
 // Decoding and executing the current opcode
 void chip8::DecodeAndExecute(uint16_t opcode){
-    /// Dxyn
+   
     uint16_t nibble[6]{}; // 6 type of nibbles are there in the opcode
     // decoding the opcode with masking 
     nibble[0] = (opcode & 0xf000) >> 12; // first byte

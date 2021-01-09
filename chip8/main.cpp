@@ -6,9 +6,9 @@ int main(int argc, char* argv[]){
     bool running = true;
 
     UI Screen;
-    Screen.UI_Init();
-    
     chip8 CHIP8;
+
+    Screen.UI_Init();
     CHIP8.ReadFile(argv[1]);
     
     while(running){

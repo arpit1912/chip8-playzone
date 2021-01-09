@@ -1,54 +1,22 @@
-# Game plan for the emulator
 
-- create the workflow
-- think of the classes
-- think of there connections
-- think about the connections with screen
+# Structure of CHIP-8 implementation
 
-## Flow of the Chip8
+The codebase have two major classes which handles the functionality of the Emulator which are explained below:
 
-### Initialise all the values present in the emulator
+## chip8
 
-1. create the intialise memory.
-1. create and initialise the registers
-1. set the Index register to zero
-1. set the PC
-1. clear the screen
-1. clean the stack
+This class aims to behave like the simulator for chip-8. All the behavior and attributes of CHIP-8 should be only in this class.
 
-### Load the file into the memory
+## UI
 
- 1. Fetch the instruction from the memory
- 2. Decode use a switch.
- 3. Execute write in the switch case
+This class aims to handle the interaction of the chip-8 with the screen, audio, and any other I/O service the chip8 class needs. This class uses SDL2 for the implementing the functionality.
 
-start reading the instr from the memory.
+### Driver Program
 
-## Class Descriptions
+`main.cpp` is the driver file where these classes interact. Remember we aim to simplify the code of `main` as much as we can.
 
-### cpu8 class
+To run the code do:\
+    ```make``` \
+    ```./chip8.out <chip-8 program file> ```
 
-This class should be the main power house of the emulator.
-
-#### Variables
-
-- PC
-- Registers
-- Delay Timer
-- Index Register
-
-For each of the below we can have a class to make instance of each of them.
-
-- Memory
-- Display
-- PC -- point the current instr in memory
-- Index Register for memory -- 16 bit register
-- Stack -- 16-bit addresses
-- Delay Timer -- 8-bit decremented at 60Hz until reaches zero
-- Sound Timer -- not an aim intially
-- General Variable Registers -- 16( 8-bit ) registers numbered 0-15 in decimal called `V0` to `VF`
-
-### Implementation Details
-
-use chrono to check the cycle time once the time is done we can update it(Our PC speed will be quite high)
-Instruction speed of 700 per second is considered good.
+A simple IBM Logo.ch8 is already present for testing the source code.

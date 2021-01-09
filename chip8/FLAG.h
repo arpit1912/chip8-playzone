@@ -1,3 +1,6 @@
+/*
+This file stores all the Flags that are used in the Emulator
+*/
 #ifndef FLAG_H
 #define FLAG_H
 
