@@ -10,6 +10,14 @@ The aim of this project is to bring back the childhood games in our computers ag
 
 ## How to contribute
 
++ fork the repo
++ set the current repo as an upstream
++ create a new branch and work on
++ always do the following below before making an PR in the branch you are working on
+    + ```git fetch upstream main```
+    + ```git merge upstream/main```
++ after the merging of PR you can delete the branch
+
 Create a PR with mentioning the details of the issues it fixes!
 
 ## Issues to work on
